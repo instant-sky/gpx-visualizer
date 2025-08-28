@@ -21,6 +21,7 @@ function handleUpload(event: Event) {
 
 function toggleVisibility(index: number) {
   files.value[index].visible = !files.value[index].visible
+  files.value = [...files.value]; // after any change to trigger watcher
 }
 
 // Emits files and their visibility to parent
