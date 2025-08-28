@@ -18,15 +18,11 @@ onMounted(() => {
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
 watch(() => props.gpxFiles, (newFiles) => {
+  console.log(newFiles)
   // TODO: Add GPX parsing and rendering logic here
 })
 </script>
 
 <template>
-  <div style="width: 100%; height: 100%;">
-    <div ref="mapDiv" id="mapDiv"></div>
-  </div>
+  <div ref="mapDiv" id="mapDiv"></div>
 </template>
-
-<style scoped>
-</style>

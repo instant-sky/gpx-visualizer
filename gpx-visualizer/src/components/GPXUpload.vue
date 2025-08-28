@@ -44,21 +44,3 @@ watch(files, () => {
     </ul>
   </div>
 </template>
-
-<style scoped>
-.gpx-upload {
-  padding: 1rem;
-  border-right: 1px solid #ccc;
-  min-width: 220px;
-}
-ul {
-  list-style: none;
-  padding: 0;
-}
-li {
-  margin-bottom: 0.5rem;
-}
-button {
-  margin-left: 1rem;
-}
-</style>
