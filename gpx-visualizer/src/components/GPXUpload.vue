@@ -13,7 +13,8 @@ function handleUpload(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files) {
     for (const file of Array.from(input.files)) {
-      files.value.push({ name: file.name, file, visible: true })
+        files.value.push({ name: file.name, file, visible: true })
+        files.value = [...files.value]; // after any change to trigger watcher
     }
   }
 }
@@ -25,9 +26,9 @@ function toggleVisibility(index: number) {
 // Emits files and their visibility to parent
 const emit = defineEmits(['update:files'])
 watch(files, () => {
-  // Emit a copy to avoid mutation issues
-  // Parent can listen to "update:files"
-  emit('update:files', files.value.map(f => ({ ...f })))
+    console.log("Files changed:", files.value);
+  // Emit a new array reference to trigger reactivity
+  emit('update:files', [...files.value.map(f => ({ ...f }))])
 })
 </script>
 
