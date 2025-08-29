@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import L from 'leaflet'
+import "../scripts/L.Polyline.SnakeAnim.js"
 
 const props = defineProps<{ gpxFiles: Array<{ name: string, file: File, visible: boolean }> }>()
 
@@ -55,7 +56,8 @@ watch(() => props.gpxFiles, (newFiles) => {
         const [track_name, track_coords] = gpx_loader(gpxData);
         if (map && track_coords.length > 0) {
           map.setView(track_coords[0], 12);
-          var polyline = L.polyline(track_coords).addTo(map);
+          var polyline = L.polyline(track_coords)
+          polyline.addTo(map).snakeIn();
         }
 
 
