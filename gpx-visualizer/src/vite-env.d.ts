@@ -7,3 +7,5 @@ declare module 'leaflet' {
     snakeIn(): this;
   }
 }
+
+declare module 'lodash-es';
