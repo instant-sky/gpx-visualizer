@@ -7,6 +7,7 @@ const props = defineProps<{ gpxFiles: Array<{ name: string, file: File, visible:
 
 const mapDiv = ref<HTMLElement | null>(null)
 let map: L.Map | null = null
+let polylines: L.Polyline[] = []
 
 onMounted(() => {
   if (mapDiv.value) {
@@ -42,9 +43,18 @@ function gpx_loader(gpx_file: string): [number, number][] {
     return coords;
 }
 
+function gpx_file_loader(gpx_file: { name: string, file: File, visible: boolean }, callback: (gpxData: string) => void) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const gpxData = e.target?.result as string;
+    callback(gpxData);
+  };
+  reader.readAsText(gpx_file.file);
+}
+
 function animatePolyline(polyline: L.Polyline, map: L.Map) {
   console.log(polyline)
-  polyline.addTo(map).snakeIn();
+  polyline.snakeIn();
 
   const tipMarker = L.circleMarker([0, 0], { radius: 5, opacity: 1, fill: true, fillOpacity: 1}).addTo(map);
   polyline.on('snake', function() {
@@ -64,9 +74,34 @@ function animatePolyline(polyline: L.Polyline, map: L.Map) {
       tip = latlngs[latlngs.length - 1] as L.LatLng;
     }
     tipMarker.setLatLng(tip);
-    map.panTo(tip);
+    //map.panTo(tip);
   })
+  polyline.on('snakeend', function() {
+    map.removeLayer(tipMarker);
+  });
 }
+
+function animate_all_tracks() {
+  /*const allFiles = props.gpxFiles;
+  console.log("Animate all tracks called in map component");
+  allFiles.forEach(fileObj => {
+    console.log(fileObj);
+    // You can access fileObj.name, fileObj.file, fileObj.visible
+    // For example, animate only visible tracks:
+    if (fileObj.visible) {
+      // Animate this track
+    }
+  });*/
+  polylines.forEach(polyline => {
+    if (map) {
+      //map?.removeLayer(polyline);
+      console.log(polyline);
+      animatePolyline(polyline, map)//animatePolyline(polyline, map);
+    }
+  });
+}
+
+defineExpose({ animate_all_tracks })
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
 watch(() => props.gpxFiles, (newFiles) => {
@@ -74,27 +109,19 @@ watch(() => props.gpxFiles, (newFiles) => {
   newFiles.forEach(fileObj => {
     console.log(fileObj)
     if (fileObj.visible) {
-      // Load and display GPX file on the map
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const gpxData = e.target?.result as string
-        // Parse GPX data and add to map
-        // This is a placeholder; you would use a GPX parsing library here
-        console.log(`Loaded GPX data for ${fileObj.name}:`, gpxData)
-
+      gpx_file_loader(fileObj, (gpxData) => {
         const track_coords = gpx_loader(gpxData);
-        if (map && track_coords.length > 0) {
+        if (map && track_coords.length > 1) {
           map.setView(track_coords[0], 9);
           var polyline = L.polyline(track_coords)
-          animatePolyline(polyline, map);          
+          //animatePolyline(polyline, map);          
+          polyline.addTo(map);
+          polylines.push(polyline);
 
         }
-
-
-      }
-      reader.readAsText(fileObj.file)
+      });
     } else {
-      // Remove GPX layer from the map if it exists
+      // Remove GPX layer from the map if it exists || not implemented yet
       console.log(`GPX file ${fileObj.name} is hidden`)
     }
   })

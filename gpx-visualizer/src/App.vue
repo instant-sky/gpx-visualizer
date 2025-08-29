@@ -5,9 +5,16 @@ import GPXUpload from './components/GPXUpload.vue'
 import AnimationControls from './components/AnimationControls.vue'
 
 const gpxFiles = ref([])
+const mapRef = ref()
 
 function updateFiles(files: any) {
   gpxFiles.value = files
+}
+
+function handleAnimateAllTracks() {
+  if (mapRef.value && typeof mapRef.value.animate_all_tracks === 'function') {
+    mapRef.value.animate_all_tracks();
+  }
 }
 </script>
 
@@ -15,8 +22,8 @@ function updateFiles(files: any) {
   <div class="main-layout">
     <div class="flex-container">
       <GPXUpload @update:files="updateFiles" />
-      <AnimationControls />
+      <AnimationControls @animateAllTracks="handleAnimateAllTracks"/>
     </div>
-    <Map :gpxFiles="gpxFiles" />
+    <Map ref="mapRef" :gpxFiles="gpxFiles" />
   </div>
 </template>
