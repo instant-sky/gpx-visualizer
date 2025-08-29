@@ -53,7 +53,7 @@ function gpx_file_loader(gpx_file: { name: string, file: File, visible: boolean 
   reader.readAsText(gpx_file.file);
 }
 
-function animatePolyline(polyline: L.Polyline, map: L.Map) {
+function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolean = false) {
   console.log(polyline)
   polyline.snakeIn();
 
@@ -75,7 +75,9 @@ function animatePolyline(polyline: L.Polyline, map: L.Map) {
       tip = latlngs[latlngs.length - 1] as L.LatLng;
     }
     tipMarker.setLatLng(tip);
-    //map.panTo(tip);
+    if (follow_marker) {
+      map.panTo(tip);
+    }
   })
   polyline.on('snakeend', function() {
     map.removeLayer(tipMarker);
@@ -83,21 +85,11 @@ function animatePolyline(polyline: L.Polyline, map: L.Map) {
 }
 
 function animate_all_tracks() {
-  /*const allFiles = props.gpxFiles;
-  console.log("Animate all tracks called in map component");
-  allFiles.forEach(fileObj => {
-    console.log(fileObj);
-    // You can access fileObj.name, fileObj.file, fileObj.visible
-    // For example, animate only visible tracks:
-    if (fileObj.visible) {
-      // Animate this track
-    }
-  });*/
   polylines.forEach(polyline => {
     if (map) {
       //map?.removeLayer(polyline);
       console.log(polyline);
-      animatePolyline(polyline, map)//animatePolyline(polyline, map);
+      animatePolyline(polyline, map, false)//animatePolyline(polyline, map);
     }
   });
 }
