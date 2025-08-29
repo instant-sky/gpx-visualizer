@@ -14,9 +14,16 @@ let all_coords: L.LatLng[] = []
 onMounted(() => {
   if (mapDiv.value) {
     map = L.map(mapDiv.value as HTMLDivElement).setView([52.5251819, 13.3700300], 13)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    /*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
-    }).addTo(map)
+    }).addTo(map)*/
+
+    var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 20
+});
+CartoDB_DarkMatter.addTo(map)
   }
 })
 

@@ -75,6 +75,7 @@ button:focus-visible {
   height: 100%;
   display: block;
   /*flex-basis: 80%*/;
+  background-color: #242424;
 }
 
 .flex-container {
