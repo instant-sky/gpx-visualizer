@@ -10,7 +10,7 @@ let map: L.Map | null = null
 
 onMounted(() => {
   if (mapDiv.value) {
-    map = L.map(mapDiv.value as HTMLDivElement).setView([51.505, -0.09], 13)
+    map = L.map(mapDiv.value as HTMLDivElement).setView([52.5251819, 13.3700300], 13)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map)
