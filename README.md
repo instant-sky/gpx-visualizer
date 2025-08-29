@@ -4,4 +4,4 @@ This small program visualizes `.gpx` files. Tracks from multiple files can be an
 
 The animation uses the leaflet plugin [SnakeAnim](https://github.com/IvanSanchez/Leaflet.Polyline.SnakeAnim) by [Iván Sánchez Ortega](https://github.com/IvanSanchez).
 
-Card data Copyright [OpenStreetMap](https://www.openstreetmap.org/copyright), [CARTO](https://carto.com/attributions)
+Map Data Copyright [OpenStreetMap](https://www.openstreetmap.org/copyright), [CARTO](https://carto.com/attributions)
