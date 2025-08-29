@@ -8,6 +8,7 @@ const props = defineProps<{ gpxFiles: Array<{ name: string, file: File, visible:
 const mapDiv = ref<HTMLElement | null>(null)
 let map: L.Map | null = null
 let polylines: L.Polyline[] = []
+let all_coords: L.LatLng[] = []
 
 onMounted(() => {
   if (mapDiv.value) {
@@ -19,7 +20,7 @@ onMounted(() => {
 })
 
 
-function gpx_loader(gpx_file: string): [number, number][] {
+function gpx_loader(gpx_file: string): L.LatLng[] {
     //returns name and coords of a gpx track given as xml string
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(gpx_file, "text/xml");
@@ -29,14 +30,14 @@ function gpx_loader(gpx_file: string): [number, number][] {
     }
     //const track_name = track.querySelector("name")?.textContent ?? null;
     const track_segments = track.querySelectorAll("trkseg");
-    let coords: [number, number][] = [];
+    let coords: L.LatLng[] = [];
     track_segments.forEach(segment => {
         const track_points = segment.querySelectorAll("trkpt");
         track_points.forEach(track_point => {
             let lat = parseFloat(track_point.getAttribute("lat") ?? "0");
             let lon = parseFloat(track_point.getAttribute("lon") ?? "0");
             if (!isNaN(lat) && !isNaN(lon)) {
-              coords.push([lat, lon]);
+              coords.push(L.latLng(lat, lon));
             }
         });
     });
@@ -104,28 +105,31 @@ function animate_all_tracks() {
 defineExpose({ animate_all_tracks })
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
-watch(() => props.gpxFiles, (newFiles) => {
+watch(() => props.gpxFiles, (newFiles) => { //TODO: runs on all files, not only on newly created ones
   console.log("file watcher in map component triggered")
-  newFiles.forEach(fileObj => {
-    console.log(fileObj)
-    if (fileObj.visible) {
-      gpx_file_loader(fileObj, (gpxData) => {
+  Promise.all(
+  newFiles.filter(f => f.visible).map(fileObj =>
+    new Promise(resolve => {
+      gpx_file_loader(fileObj, gpxData => {
         const track_coords = gpx_loader(gpxData);
+        all_coords.push(...track_coords);
+
         if (map && track_coords.length > 1) {
-          map.setView(track_coords[0], 9);
-          var polyline = L.polyline(track_coords)
-          //animatePolyline(polyline, map);          
+          const polyline = L.polyline(track_coords);
           polyline.addTo(map);
           polylines.push(polyline);
-
         }
+
+        resolve(track_coords);
       });
-    } else {
-      // Remove GPX layer from the map if it exists || not implemented yet
-      console.log(`GPX file ${fileObj.name} is hidden`)
-    }
-  })
-  // TODO: Add GPX parsing and rendering logic here
+    })
+  )
+).then(() => {
+  if (all_coords.length > 0) {
+    map?.flyToBounds(L.latLngBounds(all_coords), {duration: 1});
+  }
+  all_coords = [] // clear all_coords for now to not store unnecessary data
+});
 })
 </script>
 
