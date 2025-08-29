@@ -34,16 +34,45 @@ function gpx_loader(gpx_file: string): [string | null, [number, number][]] {
         track_points.forEach(track_point => {
             let lat = parseFloat(track_point.getAttribute("lat") ?? "0");
             let lon = parseFloat(track_point.getAttribute("lon") ?? "0");
-            coords.push([lat, lon]);
+            if (!isNaN(lat) && !isNaN(lon)) {
+              coords.push([lat, lon]);
+            }
         });
     });
     return [track_name, coords];
+}
+
+function animatePolyline(polyline: L.Polyline, map: L.Map) {
+  console.log(polyline)
+  polyline.addTo(map).snakeIn();
+
+  const tipMarker = L.circleMarker([0, 0], { radius: 5, opacity: 1, fill: true, fillOpacity: 1}).addTo(map);
+  polyline.on('snake', function() {
+    // Get the current tip position
+    const latlngs = polyline.getLatLngs();
+    let tip: L.LatLng | null = new L.LatLng(0, 0);
+    if (Array.isArray(latlngs[0])) {
+      // Multi-polyline
+      const lastSegment = latlngs[latlngs.length - 1];
+      if (Array.isArray(lastSegment)) {
+        tip = lastSegment[lastSegment.length - 1] as L.LatLng;
+      } else {
+        tip = lastSegment as L.LatLng;
+      }
+    } else {
+      // Single polyline
+      tip = latlngs[latlngs.length - 1] as L.LatLng;
+    }
+    tipMarker.setLatLng(tip);
+    map.panTo(tip);
+  })
 }
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
 watch(() => props.gpxFiles, (newFiles) => {
   console.log("file watcher in map component triggered")
   newFiles.forEach(fileObj => {
+    console.log(fileObj)
     if (fileObj.visible) {
       // Load and display GPX file on the map
       const reader = new FileReader()
@@ -55,9 +84,10 @@ watch(() => props.gpxFiles, (newFiles) => {
 
         const [track_name, track_coords] = gpx_loader(gpxData);
         if (map && track_coords.length > 0) {
-          map.setView(track_coords[0], 12);
+          map.setView(track_coords[0], 9);
           var polyline = L.polyline(track_coords)
-          polyline.addTo(map).snakeIn();
+          animatePolyline(polyline, map);          
+
         }
 
 
