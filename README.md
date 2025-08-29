@@ -4,6 +4,8 @@ This small program visualizes `.gpx` files (in this case for railway routes). Tr
 
 The [BRouter](https://brouter.de/) website is a good place to start for creating GPX tracks.
 
+Try it yourself here: [gpx-visualizer](https://instant-sky-gpx-visualizer.netlify.app/).
+
 The animation uses the leaflet plugin [SnakeAnim](https://github.com/IvanSanchez/Leaflet.Polyline.SnakeAnim) by [Iván Sánchez Ortega](https://github.com/IvanSanchez).
 
 ![](https://github.com/instant-sky/gpx-visualizer/blob/main/demo.gif)
