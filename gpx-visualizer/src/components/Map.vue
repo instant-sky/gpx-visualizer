@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import L from 'leaflet'
 import "../scripts/L.Polyline.SnakeAnim.js"
+import { debounce } from 'lodash-es'
 
 const props = defineProps<{ gpxFiles: Array<{ name: string, file: File, visible: boolean }> }>()
 
@@ -44,13 +45,16 @@ function gpx_loader(gpx_file: string): L.LatLng[] {
     return coords;
 }
 
-function gpx_file_loader(gpx_file: { name: string, file: File, visible: boolean }, callback: (gpxData: string) => void) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const gpxData = e.target?.result as string;
-    callback(gpxData);
-  };
-  reader.readAsText(gpx_file.file);
+function gpx_file_loader_async(gpx_file: { name: string, file: File, visible: boolean }): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const gpxData = e.target?.result as string
+      resolve(gpxData)
+    }
+    reader.onerror = reject
+    reader.readAsText(gpx_file.file)
+  })
 }
 
 function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolean = false) {
@@ -88,7 +92,6 @@ function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolea
 }
 
 function animate_all_tracks_sequential() {
-  console.log(polylines)
   let index = 0;
 
   // remove all polylines first
@@ -112,7 +115,6 @@ function animate_all_tracks_sequential() {
 
 
 function animate_all_tracks_parallel() {
-  console.log(polylines)
   polylines.forEach(polyline => {
     if (map) {
       polyline.off('snake') // this seems to be necessary to stop the view from following the polyline tip
@@ -126,32 +128,42 @@ function animate_all_tracks_parallel() {
 defineExpose({ animate_all_tracks_parallel, animate_all_tracks_sequential })
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
-watch(() => props.gpxFiles, (newFiles) => { //TODO: runs on all files, not only on newly created ones
+watch(() => props.gpxFiles, debounce(async(newFiles: any[]) => {
   console.log("file watcher in map component triggered")
-  Promise.all(
-  newFiles.filter(f => f.visible).map(fileObj =>
-    new Promise(resolve => {
-      gpx_file_loader(fileObj, gpxData => {
-        const track_coords = gpx_loader(gpxData);
-        all_coords.push(...track_coords);
+  console.log(polylines)
+  // Remove all existing polylines
+  polylines.forEach(polyline => {
+    if (map?.hasLayer(polyline)) {
+      map.removeLayer(polyline)
+    }
+  })
+  polylines = []
+  all_coords = []
 
-        if (map && track_coords.length > 1) {
-          const polyline = L.polyline(track_coords);
-          polyline.addTo(map);
-          polylines.push(polyline);
-        }
+  const visibleFiles = newFiles.filter(f => f.visible)
 
-        resolve(track_coords);
-      });
-    })
-  )
-).then(() => {
-  if (all_coords.length > 0) {
-    map?.flyToBounds(L.latLngBounds(all_coords), {duration: 1});
+  for (const fileObj of visibleFiles) {
+    try {
+      const gpxData = await gpx_file_loader_async(fileObj)
+      const track_coords = gpx_loader(gpxData)
+      all_coords.push(...track_coords)
+
+      if (map && track_coords.length > 1) {
+        const polyline = L.polyline(track_coords)
+        polyline.addTo(map)
+        polylines.push(polyline)
+      }
+    } catch (err) {
+      console.error(`Failed to load ${fileObj.name}`, err)
+    }
   }
-  all_coords = [] // clear all_coords for now to not store unnecessary data
-});
-})
+
+  if (all_coords.length > 0) {
+    map?.flyToBounds(L.latLngBounds(all_coords), { duration: 1 })
+  }
+  all_coords = []
+}, 100))
+
 </script>
 
 <template>
