@@ -54,8 +54,9 @@ function gpx_file_loader(gpx_file: { name: string, file: File, visible: boolean 
 }
 
 function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolean = false) {
-  console.log(polyline)
-  polyline.snakeIn();
+
+  //polyline.off('snake');
+  //polyline.off('snakeend');
 
   const tipMarker = L.circleMarker([0, 0], { radius: 5, opacity: 1, fill: true, fillOpacity: 1}).addTo(map);
   polyline.on('snake', function() {
@@ -79,22 +80,50 @@ function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolea
       map.panTo(tip);
     }
   })
-  polyline.on('snakeend', function() {
+  polyline.on('snakeend', () => {
     map.removeLayer(tipMarker);
   });
+
+    polyline.snakeIn();
 }
 
-function animate_all_tracks() {
+function animate_all_tracks_sequential() {
+  console.log(polylines)
+  let index = 0;
+
+  // remove all polylines first
+  polylines.forEach(polyline => {
+    map?.removeLayer(polyline);
+  })
+
+  function animateNext() {
+    if (index >= polylines.length || !map) return;
+    const polyline = polylines[index];
+
+    polyline.once('snakeend', () => {
+      index++;
+      animateNext();
+    });
+    polyline.addTo(map);
+    animatePolyline(polyline, map, true);
+  }
+  animateNext();
+}
+
+
+function animate_all_tracks_parallel() {
+  console.log(polylines)
   polylines.forEach(polyline => {
     if (map) {
-      //map?.removeLayer(polyline);
-      console.log(polyline);
-      animatePolyline(polyline, map, false)//animatePolyline(polyline, map);
+      polyline.off('snake') // this seems to be necessary to stop the view from following the polyline tip
+      map.removeLayer(polyline);
+      polyline.addTo(map);
+      animatePolyline(polyline, map, false);
     }
   });
 }
 
-defineExpose({ animate_all_tracks })
+defineExpose({ animate_all_tracks_parallel, animate_all_tracks_sequential })
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
 watch(() => props.gpxFiles, (newFiles) => { //TODO: runs on all files, not only on newly created ones

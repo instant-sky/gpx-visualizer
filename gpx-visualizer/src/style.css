@@ -101,12 +101,11 @@ li {
   margin-bottom: 0.5rem;
 }
 button {
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .animation-controls {
-  padding: 1rem;
   border: 1px solid lightgreen;
   min-width: 150px;
 }
