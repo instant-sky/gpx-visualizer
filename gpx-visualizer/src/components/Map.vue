@@ -18,15 +18,15 @@ onMounted(() => {
 })
 
 
-function gpx_loader(gpx_file: string): [string | null, [number, number][]] {
+function gpx_loader(gpx_file: string): [number, number][] {
     //returns name and coords of a gpx track given as xml string
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(gpx_file, "text/xml");
     const track = xmlDoc.querySelector("trk");
     if (!track) {
-      return [null, []];
+      return [];
     }
-    const track_name = track.querySelector("name")?.textContent ?? null;
+    //const track_name = track.querySelector("name")?.textContent ?? null;
     const track_segments = track.querySelectorAll("trkseg");
     let coords: [number, number][] = [];
     track_segments.forEach(segment => {
@@ -39,7 +39,7 @@ function gpx_loader(gpx_file: string): [string | null, [number, number][]] {
             }
         });
     });
-    return [track_name, coords];
+    return coords;
 }
 
 function animatePolyline(polyline: L.Polyline, map: L.Map) {
@@ -82,7 +82,7 @@ watch(() => props.gpxFiles, (newFiles) => {
         // This is a placeholder; you would use a GPX parsing library here
         console.log(`Loaded GPX data for ${fileObj.name}:`, gpxData)
 
-        const [track_name, track_coords] = gpx_loader(gpxData);
+        const track_coords = gpx_loader(gpxData);
         if (map && track_coords.length > 0) {
           map.setView(track_coords[0], 9);
           var polyline = L.polyline(track_coords)
