@@ -87,12 +87,14 @@ button:focus-visible {
 
 .flex-container > * {
   border-radius: 7px;
+  max-height: 100%;
 }
 
 .gpx-upload {
   padding: 1rem;
   border: 1px solid cornflowerblue;
   min-width: 150px;
+  overflow-y: auto;
 }
 ul {
   list-style: none;
