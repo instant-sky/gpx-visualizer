@@ -32,6 +32,13 @@ function onDragEnd() {
   files.value = [...files.value] // trigger reactivity
 }
 
+function removeFile(index: number) {
+  console.log(files.value.length);
+  files.value.splice(index, 1);
+  files.value = [...files.value]
+  console.log(files.value.length)
+}
+
 // Watch for changes and emit to parent
 watch(files, () => {
   emit('update:files', [...files.value.map(f => ({ ...f }))])
@@ -48,6 +55,9 @@ watch(files, () => {
           {{ element.name }}
           <button @click="toggleVisibility(index)"> 
             {{ element.visible ? 'Hide' : 'Show' }}
+          </button>
+          <button @click="removeFile(index)">
+            X
           </button>
         </li>
       </template>
