@@ -103,7 +103,6 @@ function toggle_pause_resume(isPaused: boolean) {
       polyline.resumeSnake();
     }
   })
-  console.log(isPaused)
 }
 
 function animate_all_tracks_sequential() {

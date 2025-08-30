@@ -5,6 +5,8 @@ import 'leaflet';
 declare module 'leaflet' {
   interface Polyline {
     snakeIn(): this;
+    pauseSnake(): this;
+    resumeSnake(): this;
   }
 }
 

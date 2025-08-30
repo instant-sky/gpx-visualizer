@@ -24,7 +24,6 @@ function handleAnimateAllTracksSequential() {
 }
 
 function handleTogglePauseResume(isPaused: boolean) {
-  console.log('handling pause resume')
   if (mapRef.value && typeof mapRef.value.toggle_pause_resume === 'function') {
     mapRef.value.toggle_pause_resume(isPaused);
   }
