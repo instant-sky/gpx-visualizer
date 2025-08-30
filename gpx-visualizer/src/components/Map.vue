@@ -143,8 +143,6 @@ defineExpose({ animate_all_tracks_parallel, animate_all_tracks_sequential, toggl
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
 watch(() => props.gpxFiles, debounce(async(newFiles: any[]) => {
-  console.log("file watcher in map component triggered")
-  console.log(polylines)
   // Remove all existing polylines
   polylines.forEach(polyline => {
     if (map?.hasLayer(polyline)) {

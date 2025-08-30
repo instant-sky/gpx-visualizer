@@ -33,10 +33,8 @@ function onDragEnd() {
 }
 
 function removeFile(index: number) {
-  console.log(files.value.length);
   files.value.splice(index, 1);
   files.value = [...files.value]
-  console.log(files.value.length)
 }
 
 // Watch for changes and emit to parent
