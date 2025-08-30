@@ -23,10 +23,10 @@ function handleUpload(event: Event) {
   }
 }
 
-//function toggleVisibility(index: number) {
-//  files.value[index].visible = !files.value[index].visible
-//  files.value = [...files.value] // trigger reactivity
-//}
+function toggleVisibility(index: number) {
+  files.value[index].visible = !files.value[index].visible
+  files.value = [...files.value] // trigger reactivity
+}
 
 function onDragEnd() {
   files.value = [...files.value] // trigger reactivity
@@ -43,12 +43,12 @@ watch(files, () => {
     <input type="file" accept=".gpx" multiple @change="handleUpload" />
 
     <draggable v-model="files" item-key="name" @end="onDragEnd">
-      <template #item="{ element/*, index*/ }">
+      <template #item="{ element, index }">
         <li>
           {{ element.name }}
-          <!--   <button @click="toggleVisibility(index)"> 
+          <button @click="toggleVisibility(index)"> 
             {{ element.visible ? 'Hide' : 'Show' }}
-          </button> -->
+          </button>
         </li>
       </template>
     </draggable>
