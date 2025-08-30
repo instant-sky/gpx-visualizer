@@ -23,13 +23,20 @@ function handleAnimateAllTracksSequential() {
   }
 }
 
+function handleTogglePauseResume(isPaused: boolean) {
+  console.log('handling pause resume')
+  if (mapRef.value && typeof mapRef.value.toggle_pause_resume === 'function') {
+    mapRef.value.toggle_pause_resume(isPaused);
+  }
+}
+
 </script>
 
 <template>
   <div class="main-layout">
     <div class="flex-container">
       <GPXUpload @update:files="updateFiles" />
-      <AnimationControls @animateAllTracksParallel="handleAnimateAllTracksParallel" @animateAllTracksSequential="handleAnimateAllTracksSequential"/>
+      <AnimationControls @animateAllTracksParallel="handleAnimateAllTracksParallel" @animateAllTracksSequential="handleAnimateAllTracksSequential" @togglePauseResume="handleTogglePauseResume"/>
     </div>
     <Map ref="mapRef" :gpxFiles="gpxFiles" />
   </div>

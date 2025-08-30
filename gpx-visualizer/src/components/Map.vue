@@ -66,9 +66,6 @@ function gpx_file_loader_async(gpx_file: { name: string, file: File, visible: bo
 
 function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolean = false) {
 
-  //polyline.off('snake');
-  //polyline.off('snakeend');
-
   const tipMarker = L.circleMarker([0, 0], { radius: 5, opacity: 1, fill: true, fillOpacity: 1}).addTo(map);
   polyline.on('snake', function() {
     // Get the current tip position
@@ -96,6 +93,17 @@ function animatePolyline(polyline: L.Polyline, map: L.Map, follow_marker: Boolea
   });
 
     polyline.snakeIn();
+}
+
+function toggle_pause_resume(isPaused: boolean) {
+  polylines.forEach(polyline => {
+    if (!isPaused) {
+      polyline.pauseSnake();
+    } else if (isPaused) {
+      polyline.resumeSnake();
+    }
+  })
+  console.log(isPaused)
 }
 
 function animate_all_tracks_sequential() {
@@ -132,7 +140,7 @@ function animate_all_tracks_parallel() {
   });
 }
 
-defineExpose({ animate_all_tracks_parallel, animate_all_tracks_sequential })
+defineExpose({ animate_all_tracks_parallel, animate_all_tracks_sequential, toggle_pause_resume })
 
 // Here you would watch props.gpxFiles and add/remove GPX layers accordingly
 watch(() => props.gpxFiles, debounce(async(newFiles: any[]) => {

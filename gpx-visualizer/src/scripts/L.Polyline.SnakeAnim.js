@@ -10,6 +10,9 @@ export{};
 
 L.Polyline.include({
 
+	// Add pause functionality
+	_snakingPaused: false,
+
 	// Hi-res timestamp indicating when the last calculations for vertices and
 	// distance took place.
 	_snakingTimestamp: 0,
@@ -59,8 +62,25 @@ L.Polyline.include({
 		return this;
 	},
 
+	pauseSnake: function () {
+		if (this._snaking) {
+			this._snakingPaused = true;
+			this.fire('snakepause');
+		}
+	},
+
+	resumeSnake: function () {
+		if (this._snaking && this._snakingPaused) {
+			this._snakingPaused = false;
+			this._snakingTime = performance.now();
+			this._snake();
+			this.fire('snakeresume')
+		}
+	},
+
 
 	_snake: function(){
+		if (this._snakingPaused) return; // halt animation if paused
 
 		var now = performance.now();
 		var diff = now - this._snakingTime;	// In milliseconds

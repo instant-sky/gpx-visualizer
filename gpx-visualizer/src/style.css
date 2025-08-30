@@ -107,8 +107,11 @@ button {
 }
 
 .animation-controls {
+  display: flex;
+  flex-direction: column;
   border: 1px solid lightgreen;
   min-width: 150px;
+  padding: 1rem;
 }
 
 .main-layout {
